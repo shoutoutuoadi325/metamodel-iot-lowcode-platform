@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException, BadRequestException } from '@nestjs/common';
 import { DeviceModelsService } from './device-models.service';
 import { CreateDeviceModelDto, UpdateDeviceModelDto } from '@iot-platform/shared';
 
@@ -34,6 +34,18 @@ export class DeviceModelsController {
     try {
       return await this.deviceModelsService.update(id, dto);
     } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Delete(':id')
+  async deleteModel(@Param('id') id: string) {
+    try {
+      return await this.deviceModelsService.delete(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new BadRequestException(error.message);
     }
   }

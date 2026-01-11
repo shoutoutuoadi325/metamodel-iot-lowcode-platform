@@ -161,6 +161,17 @@ export class DeviceModelsService implements OnModuleInit {
     });
   }
 
+  async delete(id: string) {
+    const existing = await this.findOne(id);
+    if (!existing) {
+      throw new NotFoundException(`Device model ${id} not found`);
+    }
+
+    return this.prisma.deviceModel.delete({
+      where: { id },
+    });
+  }
+
   private async createExampleModel() {
     const modelId = 'model.sim.light.v1';
     

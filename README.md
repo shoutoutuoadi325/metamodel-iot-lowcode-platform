@@ -180,6 +180,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:3001
 - `GET /api/device-models/:id` - Get device model
 - `POST /api/device-models` - Create device model
 - `PUT /api/device-models/:id` - Update device model
+- `DELETE /api/device-models/:id` - Delete device model
 
 ### Flows
 - `GET /api/flows` - List all flows
