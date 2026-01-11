@@ -4,7 +4,7 @@ echo "🚀 Starting all services..."
 
 # Start Docker services in background
 echo "🐳 Starting Docker services..."
-docker-compose up -d
+docker compose up -d
 
 echo "⏳ Waiting for services..."
 sleep 5

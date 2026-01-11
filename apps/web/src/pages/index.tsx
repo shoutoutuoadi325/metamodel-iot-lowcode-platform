@@ -65,7 +65,7 @@ export default function Home() {
             🚀 Quick Start
           </h2>
           <ol className="list-decimal list-inside space-y-2 text-gray-700">
-            <li>Start Docker services: <code className="bg-white px-2 py-1 rounded">docker-compose up -d</code></li>
+            <li>Start Docker services: <code className="bg-white px-2 py-1 rounded">docker compose up -d</code></li>
             <li>Run migrations: <code className="bg-white px-2 py-1 rounded">cd apps/api && pnpm prisma:migrate</code></li>
             <li>Start API server: <code className="bg-white px-2 py-1 rounded">cd apps/api && pnpm dev</code></li>
             <li>Start web frontend: <code className="bg-white px-2 py-1 rounded">cd apps/web && pnpm dev</code></li>
