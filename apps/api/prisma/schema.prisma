@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DeviceModel {
+  id         String   @id @default(uuid())
+  modelId    String   @unique
+  version    String
+  name       String
+  schemaJson Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  devices    Device[]
+
+  @@map("device_models")
+}
+
+model Device {
+  deviceId     String            @id
+  name         String
+  modelId      String
+  online       Boolean           @default(false)
+  lastSeen     DateTime?
+  descJson     Json?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  model        DeviceModel       @relation(fields: [modelId], references: [modelId])
+  stateLogs    DeviceStateLog[]
+  eventLogs    DeviceEventLog[]
+
+  @@map("devices")
+}
+
+model DeviceStateLog {
+  id        String   @id @default(uuid())
+  deviceId  String
+  key       String
+  valueJson Json
+  ts        DateTime @default(now())
+  device    Device   @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+
+  @@index([deviceId, ts])
+  @@map("device_state_logs")
+}
+
+model DeviceEventLog {
+  id          String   @id @default(uuid())
+  deviceId    String
+  eventName   String
+  payloadJson Json?
+  ts          DateTime @default(now())
+  device      Device   @relation(fields: [deviceId], references: [deviceId], onDelete: Cascade)
+
+  @@index([deviceId, ts])
+  @@map("device_event_logs")
+}
+
+model Flow {
+  id        String    @id @default(uuid())
+  name      String
+  enabled   Boolean   @default(false)
+  graphJson Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  runs      FlowRun[]
+
+  @@map("flows")
+}
+
+model FlowRun {
+  id        String    @id @default(uuid())
+  flowId    String
+  status    String    // running, completed, failed
+  logsJson  Json
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  flow      Flow      @relation(fields: [flowId], references: [id], onDelete: Cascade)
+
+  @@index([flowId, startedAt])
+  @@map("flow_runs")
+}

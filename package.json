@@ -1,0 +1,21 @@
+{
+  "name": "metamodel-iot-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IoT Low-code Platform with Meta-modeling",
+  "scripts": {
+    "dev": "pnpm --parallel --stream -r dev",
+    "build": "pnpm -r build",
+    "clean": "pnpm -r clean",
+    "setup": "bash scripts/setup.sh",
+    "start:all": "bash scripts/start-all.sh"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
