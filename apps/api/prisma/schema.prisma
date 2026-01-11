@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Device Model (Meta-Model)
+model DeviceModel {
+  id         String   @id @default(uuid())
+  modelId    String   @unique
+  version    String
+  name       String
+  schemaJson Json     @map("schema_json")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("device_models")
+}
+
+// Device Instance
+model Device {
+  deviceId  String    @id @map("device_id")
+  name      String
+  modelId   String    @map("model_id")
+  online    Boolean   @default(false)
+  lastSeen  DateTime? @map("last_seen")
+  descJson  Json?     @map("desc_json")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("devices")
+}
+
+// Device state history
+model DeviceStateLog {
+  id        String   @id @default(uuid())
+  deviceId  String   @map("device_id")
+  key       String
+  valueJson Json     @map("value_json")
+  ts        DateTime @default(now())
+
+  @@index([deviceId, ts])
+  @@map("device_state_log")
+}
+
+// Device event log
+model DeviceEventLog {
+  id          String   @id @default(uuid())
+  deviceId    String   @map("device_id")
+  eventName   String   @map("event_name")
+  payloadJson Json     @map("payload_json")
+  ts          DateTime @default(now())
+
+  @@index([deviceId, ts])
+  @@map("device_event_log")
+}
+
+// Flow (Low-code orchestration)
+model Flow {
+  id        String    @id @default(uuid())
+  name      String
+  enabled   Boolean   @default(false)
+  graphJson Json      @map("graph_json")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  runs      FlowRun[]
+
+  @@map("flows")
+}
+
+// Flow execution history
+model FlowRun {
+  id        String    @id @default(uuid())
+  flowId    String    @map("flow_id")
+  status    String    // 'running' | 'completed' | 'failed'
+  logsJson  Json      @map("logs_json")
+  startedAt DateTime  @default(now()) @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+
+  flow Flow @relation(fields: [flowId], references: [id], onDelete: Cascade)
+
+  @@index([flowId, startedAt])
+  @@map("flow_runs")
+}
