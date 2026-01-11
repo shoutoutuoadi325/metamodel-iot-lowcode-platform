@@ -34,5 +34,6 @@ export const updateFlow = (id: string, data: any) => api.put(`/api/flows/${id}`,
 export const enableFlow = (id: string) => api.post(`/api/flows/${id}/enable`);
 export const disableFlow = (id: string) => api.post(`/api/flows/${id}/disable`);
 export const getFlowRuns = (id: string) => api.get(`/api/flows/${id}/runs`);
+export const deleteFlow = (id: string) => api.delete(`/api/flows/${id}`);
 
 export default api;

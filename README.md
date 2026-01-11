@@ -187,6 +187,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:3001
 - `GET /api/flows/:id` - Get flow details
 - `POST /api/flows` - Create flow
 - `PUT /api/flows/:id` - Update flow
+- `DELETE /api/flows/:id` - Delete flow
 - `POST /api/flows/:id/enable` - Enable flow
 - `POST /api/flows/:id/disable` - Disable flow
 - `GET /api/flows/:id/runs` - Get flow execution history

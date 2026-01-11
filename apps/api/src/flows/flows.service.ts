@@ -83,6 +83,17 @@ export class FlowsService {
     });
   }
 
+  async delete(id: string) {
+    const existing = await this.findOne(id);
+    if (!existing) {
+      throw new NotFoundException(`Flow ${id} not found`);
+    }
+
+    return this.prisma.flow.delete({
+      where: { id },
+    });
+  }
+
   private validateFlowGraph(graph: FlowGraph) {
     const { nodes, edges } = graph;
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException, BadRequestException } from '@nestjs/common';
 import { FlowsService } from './flows.service';
 import { CreateFlowDto, UpdateFlowDto } from '@iot-platform/shared';
 
@@ -51,5 +51,17 @@ export class FlowsController {
   @Get(':id/runs')
   async getFlowRuns(@Param('id') id: string) {
     return this.flowsService.getFlowRuns(id);
+  }
+
+  @Delete(':id')
+  async deleteFlow(@Param('id') id: string) {
+    try {
+      return await this.flowsService.delete(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException(error.message);
+    }
   }
 }

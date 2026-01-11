@@ -63,6 +63,7 @@ export default function FlowsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedFlow, setSelectedFlow] = useState<Flow | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -70,6 +71,7 @@ export default function FlowsPage() {
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Simple flow builder state
   const [triggerDevice, setTriggerDevice] = useState('');
@@ -262,6 +264,26 @@ export default function FlowsPage() {
     setShowCreateModal(true);
   };
 
+  const openDeleteModal = (flow: Flow) => {
+    setSelectedFlow(flow);
+    setShowDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedFlow) return;
+    setDeleting(true);
+    try {
+      await api.deleteFlow(selectedFlow.id);
+      setShowDeleteModal(false);
+      setSelectedFlow(null);
+      fetchFlows();
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Failed to delete flow');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const getDeviceActions = (deviceId: string): string[] => {
     const device = devices.find(d => d.deviceId === deviceId);
     if (!device || !device.descJson?.capabilities) return [];
@@ -407,6 +429,12 @@ export default function FlowsPage() {
                           >
                             History
                           </Link>
+                          <button
+                            onClick={() => openDeleteModal(flow)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -816,6 +844,40 @@ export default function FlowsPage() {
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Flow">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <svg className="h-10 w-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900">Are you sure?</h3>
+              <p className="text-sm text-gray-500">
+                This will permanently delete the flow <strong>{selectedFlow?.name}</strong> and all its execution history. This action cannot be undone.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {deleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>
