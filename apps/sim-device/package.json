@@ -1,0 +1,22 @@
+{
+  "name": "@iot-platform/sim-device",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "mqtt": "^5.3.5",
+    "yargs": "^17.7.2",
+    "@iot-platform/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/yargs": "^17.0.32",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}
