@@ -19,7 +19,7 @@ interface DeviceState {
 }
 
 class SimulatedDevice {
-  private client: MqttClient;
+  private client!: MqttClient;
   private state: DeviceState = {
     on: false,
     brightness: 0,

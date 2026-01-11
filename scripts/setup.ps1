@@ -61,6 +61,16 @@ Start-Sleep -Seconds 5
 Write-Host "🗄️  Running database migrations..." -ForegroundColor Green
 $apiPath = Join-Path $projectRoot "apps\api"
 Set-Location $apiPath
+
+# Copy .env to apps/api if not exists (Prisma needs it)
+$apiEnvPath = Join-Path $apiPath ".env"
+if (-not (Test-Path $apiEnvPath)) {
+    if (Test-Path $envPath) {
+        Write-Host "📝 Copying .env to apps/api for Prisma..." -ForegroundColor Green
+        Copy-Item $envPath $apiEnvPath
+    }
+}
+
 pnpm prisma generate
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to generate Prisma client" -ForegroundColor Red

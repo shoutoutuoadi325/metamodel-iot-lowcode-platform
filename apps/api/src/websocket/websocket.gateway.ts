@@ -1,5 +1,5 @@
 import {
-  WebSocketGateway,
+  WebSocketGateway as WsGateway,
   WebSocketServer,
   OnGatewayInit,
   OnGatewayConnection,
@@ -10,7 +10,7 @@ import { Server, Socket } from 'socket.io';
 import { MqttGatewayService } from '../mqtt/mqtt-gateway.service';
 import { WsMessage } from '@iot-platform/shared';
 
-@WebSocketGateway({
+@WsGateway({
   cors: {
     origin: '*',
   },
