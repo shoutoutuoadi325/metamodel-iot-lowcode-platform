@@ -96,6 +96,8 @@ export class DeviceModelsService implements OnModuleInit {
   async onModuleInit() {
     // Create example device model if it doesn't exist
     await this.createExampleModel();
+    await this.createHvacModel();
+    await this.createOccupancyModel();
   }
 
   async findAll() {
@@ -252,6 +254,173 @@ export class DeviceModelsService implements OnModuleInit {
         version: '1.0.0',
         name: 'Simulated Smart Light',
         schemaJson: exampleSchema as any,
+      },
+    });
+
+    console.log(`✅ Created example device model: ${modelId}`);
+  }
+
+  private async createHvacModel() {
+    const modelId = 'model.sim.hvac.v1';
+    
+    const existing = await this.findByModelId(modelId);
+    if (existing) {
+      return;
+    }
+
+    const hvacSchema: DeviceModelSchema = {
+      modelId,
+      version: '1.0.0',
+      name: 'Simulated HVAC',
+      description: 'A simulated HVAC device with mode and temperature control',
+      semantic: {
+        type: 'hvac',
+        category: 'actuator',
+        tags: ['smart-home', 'climate'],
+      },
+      properties: [
+        {
+          name: 'mode',
+          type: 'string',
+          writable: true,
+          readable: true,
+          enum: ['off', 'cool', 'heat'],
+          description: 'Operating mode',
+        },
+        {
+          name: 'targetTemp',
+          type: 'number',
+          writable: true,
+          readable: true,
+          min: 16,
+          max: 30,
+          unit: '°C',
+          description: 'Target temperature',
+        },
+        {
+          name: 'currentTemp',
+          type: 'number',
+          writable: false,
+          readable: true,
+          unit: '°C',
+          description: 'Current temperature',
+        },
+        {
+          name: 'fanSpeed',
+          type: 'string',
+          writable: true,
+          readable: true,
+          enum: ['low', 'mid', 'high'],
+          description: 'Fan speed',
+        },
+      ],
+      actions: [
+        {
+          name: 'setMode',
+          description: 'Set HVAC mode',
+          parameters: [
+            {
+              name: 'mode',
+              type: 'string',
+              required: true,
+              enum: ['off', 'cool', 'heat'],
+              description: 'Mode (off, cool, heat)',
+            },
+          ],
+        },
+        {
+          name: 'setTargetTemp',
+          description: 'Set target temperature',
+          parameters: [
+            {
+              name: 'temp',
+              type: 'number',
+              required: true,
+              min: 16,
+              max: 30,
+              description: 'Target temperature (16-30)',
+            },
+          ],
+        },
+        {
+          name: 'setFanSpeed',
+          description: 'Set fan speed',
+          parameters: [
+            {
+              name: 'speed',
+              type: 'string',
+              required: true,
+              enum: ['low', 'mid', 'high'],
+              description: 'Fan speed (low, mid, high)',
+            },
+          ],
+        },
+      ],
+      events: [],
+    };
+
+    await this.prisma.deviceModel.create({
+      data: {
+        modelId,
+        version: '1.0.0',
+        name: 'Simulated HVAC',
+        schemaJson: hvacSchema as any,
+      },
+    });
+
+    console.log(`✅ Created example device model: ${modelId}`);
+  }
+
+  private async createOccupancyModel() {
+    const modelId = 'model.sim.sensor.occupancy.v1';
+    
+    const existing = await this.findByModelId(modelId);
+    if (existing) {
+      return;
+    }
+
+    const occupancySchema: DeviceModelSchema = {
+      modelId,
+      version: '1.0.0',
+      name: 'Simulated Occupancy Sensor',
+      description: 'A simulated occupancy sensor',
+      semantic: {
+        type: 'occupancy',
+        category: 'sensor',
+        tags: ['smart-home', 'security'],
+      },
+      properties: [
+        {
+          name: 'occupied',
+          type: 'boolean',
+          writable: false,
+          readable: true,
+          description: 'Occupancy state (true=occupied, false=vacant)',
+        },
+      ],
+      actions: [
+        {
+          name: 'setOccupancy',
+          description: 'Simulate occupancy state',
+          parameters: [
+            {
+              name: 'occupied',
+              type: 'boolean',
+              required: true,
+              description: 'Occupancy state',
+            },
+          ],
+        },
+      ],
+      events: [],
+    };
+
+    await this.prisma.deviceModel.create({
+      data: {
+        modelId,
+        version: '1.0.0',
+        name: 'Simulated Occupancy Sensor',
+        schemaJson: occupancySchema as any,
       },
     });
 

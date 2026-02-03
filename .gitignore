@@ -2,16 +2,22 @@
 node_modules/
 .pnp
 .pnp.js
+.pnpm-store/
 
 # Testing
 coverage/
 *.lcov
+.nyc_output/
+junit.xml
 
 # Build outputs
 dist/
 build/
 .next/
 out/
+*.tsbuildinfo
+.turbo/
+.vercel/
 
 # Environment
 .env
@@ -19,6 +25,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+*.local
 
 # Logs
 logs/
@@ -34,10 +41,17 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+*.bak
+
+# Linting
+.eslintcache
+.stylelintcache
 
 # OS
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Database
 *.db
