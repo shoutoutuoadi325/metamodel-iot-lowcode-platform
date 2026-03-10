@@ -15,7 +15,7 @@ export interface DevicePresence {
 // ============= Device Description =============
 
 export interface DeviceCapability {
-  type: 'property' | 'action' | 'event';
+  type?: 'property' | 'action' | 'event';
   name: string;
   valueType?: string;
   writable?: boolean;
@@ -25,6 +25,13 @@ export interface DeviceCapability {
   max?: number;
   enum?: string[];
   description?: string;
+  inputs?: Array<{
+    name: string;
+    type: string;
+    min?: number;
+    max?: number;
+    enum?: string[];
+  }>;
 }
 
 export interface DeviceSemantic {
