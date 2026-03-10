@@ -110,6 +110,20 @@ export class OrchestratorService implements OnModuleInit {
       logs: [],
     };
 
+    // Add structured trigger event log as the first entry
+    context.logs.push({
+      timestamp: Date.now(),
+      nodeId: 'trigger-event',
+      message: `Flow triggered by device event "${triggerEvent.eventName}" from ${triggerEvent.deviceId}`,
+      level: 'info',
+      data: {
+        phase: 'trigger',
+        deviceId: triggerEvent.deviceId,
+        eventName: triggerEvent.eventName,
+        payload: triggerEvent.payload,
+      },
+    });
+
     this.eventEmitter.emit('flow:started', { flowId, flowRunId: flowRun.id });
 
     try {
@@ -203,7 +217,7 @@ export class OrchestratorService implements OnModuleInit {
         nodeId: node.id,
         message: `Condition evaluated to ${result}`,
         level: 'info',
-        data: { rule, variables: context.variables, result },
+        data: { phase: 'condition', rule, variables: context.variables, result },
       });
 
       // Find next edge based on result
@@ -250,7 +264,7 @@ export class OrchestratorService implements OnModuleInit {
         nodeId: node.id,
         message: `Action ${actionName} executed successfully`,
         level: 'info',
-        data: { deviceId, actionName, params, result },
+        data: { phase: 'action', deviceId, actionName, params, result },
       });
     } catch (error) {
       context.logs.push({
@@ -258,6 +272,7 @@ export class OrchestratorService implements OnModuleInit {
         nodeId: node.id,
         message: `Action execution failed: ${error.message}`,
         level: 'error',
+        data: { phase: 'action', deviceId, actionName, params },
       });
       throw error;
     }

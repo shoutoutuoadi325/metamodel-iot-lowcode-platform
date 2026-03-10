@@ -66,6 +66,7 @@ export default function DeviceModelsPage() {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [selectedModel, setSelectedModel] = useState<DeviceModel | null>(null);
   const [formData, setFormData] = useState({
     modelId: '',
@@ -76,6 +77,11 @@ export default function DeviceModelsPage() {
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exportContent, setExportContent] = useState('');
+  const [exportFilename, setExportFilename] = useState('');
+  const [exportType, setExportType] = useState<'hass' | 'kubeedge'>('hass');
+  const [exporting, setExporting] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchModels();
@@ -201,6 +207,45 @@ export default function DeviceModelsPage() {
     }
   };
 
+  const handleExport = async (model: DeviceModel, type: 'hass' | 'kubeedge') => {
+    setExporting(true);
+    setExportType(type);
+    setSelectedModel(model);
+    setCopied(false);
+    try {
+      const res = type === 'hass'
+        ? await api.exportDeviceModelHass(model.id)
+        : await api.exportDeviceModelKubeEdge(model.id);
+      setExportContent(res.data.content);
+      setExportFilename(res.data.filename);
+      setShowExportModal(true);
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleCopyExport = async () => {
+    try {
+      await navigator.clipboard.writeText(exportContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard API unavailable - user can select and copy manually
+    }
+  };
+
+  const handleDownloadExport = () => {
+    const blob = new Blob([exportContent], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = exportFilename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return <div className="text-center py-12">Loading device models...</div>;
   }
@@ -289,6 +334,20 @@ export default function DeviceModelsPage() {
                             className="text-indigo-600 hover:text-indigo-900"
                           >
                             Edit
+                          </button>
+                          <button
+                            onClick={() => handleExport(model, 'hass')}
+                            disabled={exporting}
+                            className="text-orange-600 hover:text-orange-900 disabled:opacity-50"
+                          >
+                            HASS
+                          </button>
+                          <button
+                            onClick={() => handleExport(model, 'kubeedge')}
+                            disabled={exporting}
+                            className="text-teal-600 hover:text-teal-900 disabled:opacity-50"
+                          >
+                            KubeEdge
                           </button>
                           <button
                             onClick={() => openDeleteModal(model)}
@@ -570,6 +629,50 @@ export default function DeviceModelsPage() {
               {deleting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
+        </div>
+      </Modal>
+
+      {/* Export Modal */}
+      <Modal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        title={exportType === 'hass'
+          ? `Export HASS Config: ${selectedModel?.name || ''}`
+          : `Export KubeEdge YAML: ${selectedModel?.name || ''}`}
+      >
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-2">
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                exportType === 'hass' ? 'bg-orange-100 text-orange-800' : 'bg-teal-100 text-teal-800'
+              }`}>
+                {exportType === 'hass' ? '🏠 Home Assistant' : '☸️ KubeEdge'}
+              </span>
+              <span className="text-xs text-gray-500 self-center font-mono">{exportFilename}</span>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleCopyExport}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              >
+                {copied ? '✓ Copied!' : '📋 Copy'}
+              </button>
+              <button
+                onClick={handleDownloadExport}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              >
+                ⬇ Download
+              </button>
+            </div>
+          </div>
+          <pre className="bg-gray-900 text-green-300 p-4 rounded-lg overflow-x-auto text-xs font-mono max-h-[60vh] overflow-y-auto whitespace-pre">
+            {exportContent}
+          </pre>
+          <p className="text-xs text-gray-500">
+            {exportType === 'hass'
+              ? 'Add this configuration to your Home Assistant configuration.yaml (under mqtt: section). Replace {{DEVICE_ID}} with your actual device identifier.'
+              : 'Apply this to your KubeEdge cluster with kubectl apply -f. Replace {{DEVICE_ID}}, {{BROKER_IP}}, and {{EDGE_NODE_NAME}} with actual values.'}
+          </p>
         </div>
       </Modal>
     </div>
