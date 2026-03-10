@@ -25,6 +25,8 @@ export const getDeviceModel = (id: string) => api.get(`/api/device-models/${id}`
 export const createDeviceModel = (data: any) => api.post('/api/device-models', data);
 export const updateDeviceModel = (id: string, data: any) => api.put(`/api/device-models/${id}`, data);
 export const deleteDeviceModel = (id: string) => api.delete(`/api/device-models/${id}`);
+export const exportDeviceModelHass = (id: string) => api.get(`/api/device-models/${id}/export/hass`);
+export const exportDeviceModelKubeEdge = (id: string) => api.get(`/api/device-models/${id}/export/kubeedge`);
 
 // Flows
 export const getFlows = () => api.get('/api/flows');

@@ -11,6 +11,26 @@ export class DeviceModelsController {
     return this.deviceModelsService.findAll();
   }
 
+  @Get(':id/export/hass')
+  async exportHass(@Param('id') id: string) {
+    try {
+      return await this.deviceModelsService.exportAsHass(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get(':id/export/kubeedge')
+  async exportKubeEdge(@Param('id') id: string) {
+    try {
+      return await this.deviceModelsService.exportAsKubeEdge(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException(error.message);
+    }
+  }
+
   @Get(':id')
   async getModel(@Param('id') id: string) {
     const model = await this.deviceModelsService.findOne(id);
