@@ -55,6 +55,9 @@ cd metamodel-iot-lowcode-platform
 ```bash
 chmod +x scripts/setup.sh
 ./scripts/setup.sh
+
+chmod +x scripts/start-device.sh
+./scripts/start-device.sh
 ```
 
 This will:
